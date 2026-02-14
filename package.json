@@ -1,0 +1,41 @@
+{
+  "name": "hockey-predictions",
+  "version": "1.0.0",
+  "description": "Olympic Hockey Tournament Predictions Contest",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:migrate": "node dist/db/migrate.js"
+  },
+  "keywords": [
+    "hockey",
+    "predictions",
+    "olympics"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "cookie-parser": "^1.4.7",
+    "crypto": "^1.0.1",
+    "csrf-csrf": "^4.0.3",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.2.1",
+    "express-session": "^1.17.3",
+    "helmet": "^8.1.0",
+    "mysql2": "^3.6.5"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.17.10",
+    "@types/node": "^20.10.5",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление матчами</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+        }
+        
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        main {
+            padding: 30px;
+        }
+        
+        .form-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+        }
+        
+        .matches-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .match-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .match-item.finished {
+            background: #e8f5e9;
+        }
+        
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .match-teams {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .match-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .result-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .result-form input[type="number"] {
+            width: 100%;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Админ-панель</h1>
+            <nav>
+                <a href="/admin">Главная</a>
+                <a href="/admin/teams">Команды</a>
+                <a href="/admin/matches">Матчи</a>
+                <a href="/">На сайт</a>
+                <a href="/auth/logout">Выход</a>
+            </nav>
+        </header>
+        <main>
+            <h2>Управление матчами</h2>
+
+            <div class="form-card">
+                <h3 style="margin-bottom: 15px;">Добавить матч</h3>
+                <form id="addMatchForm">
+                    <div class="form-group">
+                        <label>Команда 1</label>
+                        <select name="team1_id" required>
+                            <option value="">Выберите команду</option>
+                            <% teams.forEach(team => { %>
+                                <option value="<%= team.id %>">
+                                    <%= team.flag_emoji || '' %> <%= team.name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Команда 2</label>
+                        <select name="team2_id" required>
+                            <option value="">Выберите команду</option>
+                            <% teams.forEach(team => { %>
+                                <option value="<%= team.id %>">
+                                    <%= team.flag_emoji || '' %> <%= team.name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Дата и время матча (ваше локальное время)</label>
+                        <input type="datetime-local" name="match_date" required>
+                        <small style="color: #666; margin-top: 4px; display: block;">
+                            Время будет автоматически конвертировано в UTC для всех пользователей
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label>Стадия турнира</label>
+                        <select name="stage" required>
+                            <option value="group">Групповой этап</option>
+                            <option value="quarterfinal">Четвертьфинал</option>
+                            <option value="semifinal">Полуфинал</option>
+                            <option value="final">Финал</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Добавить матч</button>
+                </form>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">Список матчей</h3>
+            <div class="matches-list">
+                <% if (matches.length === 0) { %>
+                    <p style="text-align: center; color: #999; padding: 20px;">
+                        Матчи еще не добавлены
+                    </p>
+                <% } else { %>
+                    <% matches.forEach(match => { %>
+                        <div class="match-item <%= match.is_finished ? 'finished' : '' %>">
+                            <div class="match-header">
+                                <div class="match-date">
+                                    <%= new Date(match.match_date).toLocaleString('ru-RU', {
+                                        day: 'numeric',
+                                        month: 'long',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) %>
+                                </div>
+                                <div style="background: #667eea; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">
+                                    <%= match.stage %>
+                                </div>
+                            </div>
+
+                            <div class="match-teams">
+                                <%= match.team1_flag || '' %> <%= match.team1_name %>
+                                VS
+                                <%= match.team2_name %> <%= match.team2_flag || '' %>
+                            </div>
+
+                            <% if (match.is_finished) { %>
+                                <div style="background: #fff3cd; padding: 10px; border-radius: 6px; text-align: center;">
+                                    <strong>Результат:</strong>
+                                    <%= match.team1_score %> : <%= match.team2_score %>
+                                    <% if (match.had_overtime) { %> (ОТ)<% } %>
+                                    <% if (match.had_shootout) { %> (Б)<% } %>
+                                </div>
+                            <% } else { %>
+                                <form class="result-form" onsubmit="saveResult(event, <%= match.id %>)">
+                                    <div class="form-group">
+                                        <label>Счет <%= match.team1_name %></label>
+                                        <input type="number" name="team1_score" min="0" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Счет <%= match.team2_name %></label>
+                                        <input type="number" name="team2_score" min="0" required>
+                                    </div>
+
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" name="overtime" id="overtime_<%= match.id %>">
+                                        <label for="overtime_<%= match.id %>">Был овертайм</label>
+                                    </div>
+
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" name="shootout" id="shootout_<%= match.id %>">
+                                        <label for="shootout_<%= match.id %>">Были буллиты</label>
+                                    </div>
+
+                                    <div style="grid-column: 1 / -1;">
+                                        <button type="submit" class="btn btn-success">Сохранить результат</button>
+                                    </div>
+                                </form>
+                            <% } %>
+                        </div>
+                    <% }); %>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // CSRF токен для защиты от CSRF атак
+        const csrfToken = '<%= csrfToken %>';
+
+        document.getElementById('addMatchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            // Конвертируем локальное время в UTC ISO строку
+            const localDateTime = formData.get('match_date');
+            const localDate = new Date(localDateTime);
+            const utcDateTime = localDate.toISOString();
+
+            const data = {
+                team1_id: parseInt(formData.get('team1_id')),
+                team2_id: parseInt(formData.get('team2_id')),
+                match_date: utcDateTime,
+                stage: formData.get('stage')
+            };
+
+            if (data.team1_id === data.team2_id) {
+                alert('Команды должны быть разными!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/matches', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Матч добавлен!');
+                    location.reload();
+                } else {
+                    alert('Ошибка при добавлении матча');
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        });
+
+        async function saveResult(event, matchId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const data = {
+                team1_score: parseInt(formData.get('team1_score')),
+                team2_score: parseInt(formData.get('team2_score')),
+                had_overtime: formData.get('overtime') === 'on',
+                had_shootout: formData.get('shootout') === 'on'
+            };
+
+            try {
+                const response = await fetch(`/api/matches/${matchId}/result`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Результат сохранен! Баллы пересчитаны.');
+                    location.reload();
+                } else {
+                    alert('Ошибка при сохранении результата');
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таблица лидеров - Прогнозы на Олимпийский хоккей 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+        }
+        
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        main {
+            padding: 30px;
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .leaderboard-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .leaderboard-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+        
+        .leaderboard-table tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        
+        .leaderboard-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .leaderboard-table tbody tr.current-user {
+            background: #fff3cd;
+            font-weight: 600;
+        }
+        
+        .rank {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            width: 60px;
+            text-align: center;
+        }
+        
+        .rank.gold {
+            color: #ffd700;
+        }
+        
+        .rank.silver {
+            color: #c0c0c0;
+        }
+        
+        .rank.bronze {
+            color: #cd7f32;
+        }
+        
+        .points {
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏒 Прогнозы на Олимпийский хоккей 2026</h1>
+            <nav>
+                <a href="/">Матчи</a>
+                <a href="/leaderboard">Таблица лидеров</a>
+                <a href="/auth/logout">Выход</a>
+            </nav>
+        </header>
+        <main>
+            <h2>🏆 Таблица лидеров</h2>
+            
+            <% if (leaderboard.length === 0) { %>
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <p>Пока никто не сделал прогнозов</p>
+                </div>
+            <% } else { %>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Место</th>
+                            <th>Участник</th>
+                            <th>Прогнозов</th>
+                            <th>Баллы</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% leaderboard.forEach((entry, index) => { 
+                            const rank = index + 1;
+                            let rankClass = '';
+                            if (rank === 1) rankClass = 'gold';
+                            else if (rank === 2) rankClass = 'silver';
+                            else if (rank === 3) rankClass = 'bronze';
+                            
+                            const isCurrentUser = currentUserId && entry.user_id === currentUserId;
+                        %>
+                            <tr class="<%= isCurrentUser ? 'current-user' : '' %>">
+                                <td class="rank <%= rankClass %>"><%= rank %></td>
+                                <td>
+                                    <%= entry.display_name || entry.username %>
+                                    <% if (isCurrentUser) { %>
+                                        <span style="color: #667eea;">(Вы)</span>
+                                    <% } %>
+                                </td>
+                                <td><%= entry.predictions_count %></td>
+                                <td class="points"><%= entry.total_points %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } %>
+        </main>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление командами</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+        }
+        
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        main {
+            padding: 30px;
+        }
+        
+        .form-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .teams-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .team-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .team-flag {
+            font-size: 32px;
+        }
+        
+        .team-actions {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Админ-панель</h1>
+            <nav>
+                <a href="/admin">Главная</a>
+                <a href="/admin/teams">Команды</a>
+                <a href="/admin/matches">Матчи</a>
+                <a href="/">На сайт</a>
+                <a href="/auth/logout">Выход</a>
+            </nav>
+        </header>
+        <main>
+            <h2>Управление командами</h2>
+            
+            <div class="form-card">
+                <h3 style="margin-bottom: 15px;">Добавить команду</h3>
+                <form id="addTeamForm">
+                    <div class="form-group">
+                        <label>Название команды</label>
+                        <input type="text" name="name" required placeholder="Например: Россия">
+                    </div>
+                    <div class="form-group">
+                        <label>Код страны</label>
+                        <input type="text" name="country_code" required placeholder="RUS" maxlength="3">
+                    </div>
+                    <div class="form-group">
+                        <label>Флаг (emoji)</label>
+                        <input type="text" name="flag_emoji" placeholder="🇷🇺">
+                    </div>
+                    <button type="submit" class="btn">Добавить команду</button>
+                </form>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">Список команд</h3>
+            <div class="teams-list">
+                <% if (teams.length === 0) { %>
+                    <p style="text-align: center; color: #999; padding: 20px;">
+                        Команды еще не добавлены
+                    </p>
+                <% } else { %>
+                    <% teams.forEach(team => { %>
+                        <div class="team-item">
+                            <div class="team-info">
+                                <div class="team-flag"><%= team.flag_emoji || '🏒' %></div>
+                                <div>
+                                    <strong><%= team.name %></strong><br>
+                                    <small style="color: #666;"><%= team.country_code %></small>
+                                </div>
+                            </div>
+                            <div class="team-actions">
+                                <button class="btn btn-danger" onclick="deleteTeam(<%= team.id %>)">
+                                    Удалить
+                                </button>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // CSRF токен для защиты от CSRF атак
+        const csrfToken = '<%= csrfToken %>';
+
+        document.getElementById('addTeamForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                name: formData.get('name'),
+                country_code: formData.get('country_code'),
+                flag_emoji: formData.get('flag_emoji')
+            };
+
+            try {
+                const response = await fetch('/api/teams', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Команда добавлена!');
+                    location.reload();
+                } else {
+                    alert('Ошибка при добавлении команды');
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        });
+
+        async function deleteTeam(id) {
+            if (!confirm('Удалить команду?')) return;
+
+            try {
+                const response = await fetch(`/api/teams/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'x-csrf-token': csrfToken
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Команда удалена!');
+                    location.reload();
+                } else {
+                    alert('Ошибка при удалении команды');
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+

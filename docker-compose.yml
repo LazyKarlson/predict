@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: hockey_predictions_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: hockey_predictions
+      MYSQL_USER: hockey_user
+      MYSQL_PASSWORD: hockey_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./src/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mariadb_data:
+

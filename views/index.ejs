@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Матчи - Прогнозы на Олимпийский хоккей 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Toast уведомления */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast-message {
+            flex: 1;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            color: #666;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.hiding {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+        }
+        
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        nav {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        main {
+            padding: 30px;
+        }
+        
+        .match-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .match-card.finished {
+            background: #e8f5e9;
+            border-color: #c8e6c9;
+        }
+
+        .match-card.started {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+        
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .match-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .match-stage {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .team {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .vs {
+            padding: 0 20px;
+            color: #999;
+            font-weight: bold;
+        }
+        
+        .prediction-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .points {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 10px;
+        }
+        
+        .result {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .match-status {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .match-status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <!-- Контейнер для toast уведомлений -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="container">
+        <header>
+            <h1>🏒 Прогнозы на Олимпийский хоккей 2026</h1>
+            <nav>
+                <a href="/">Матчи</a>
+                <a href="/leaderboard">Таблица лидеров</a>
+                <a href="/auth/logout">Выход</a>
+            </nav>
+        </header>
+        <main>
+            <h2 style="margin-bottom: 20px;">Матчи турнира</h2>
+
+            <% if (matches.length === 0) { %>
+                <p style="text-align: center; color: #666; padding: 40px;">
+                    Матчи еще не добавлены. Ожидайте начала турнира!
+                </p>
+            <% } else { %>
+                <% matches.forEach(match => { %>
+                    <div class="match-card <%= match.is_finished ? 'finished' : '' %>" data-match-id="<%= match.id %>" data-match-date="<%= match.match_date %>" data-is-finished="<%= match.is_finished %>">
+                        <div class="match-header">
+                            <div class="match-date" data-utc-date="<%= match.match_date %>">
+                                <!-- Время будет вставлено через JavaScript -->
+                            </div>
+                            <div class="match-stage"><%= match.stage %></div>
+                        </div>
+
+                        <div class="teams">
+                            <div class="team">
+                                <%= match.team1_flag || '' %> <%= match.team1_name %>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <%= match.team2_name %> <%= match.team2_flag || '' %>
+                            </div>
+                        </div>
+
+                        <% if (match.is_finished) { %>
+                            <div class="result">
+                                <strong>Результат:</strong>
+                                <%= match.team1_score %> : <%= match.team2_score %>
+                                <% if (match.had_overtime) { %> (ОТ)<% } %>
+                                <% if (match.had_shootout) { %> (Б)<% } %>
+                            </div>
+
+                            <% if (match.predicted_team1_score !== null) { %>
+                                <div style="margin-top: 10px; text-align: center; color: #666;">
+                                    Ваш прогноз: <%= match.predicted_team1_score %> : <%= match.predicted_team2_score %>
+                                    <% if (match.predicted_overtime) { %> (ОТ)<% } %>
+                                    <% if (match.predicted_shootout) { %> (Б)<% } %>
+                                </div>
+                                <div class="points">
+                                    Заработано баллов: <%= match.points_earned %>
+                                </div>
+                            <% } else { %>
+                                <div style="margin-top: 10px; text-align: center; color: #999;">
+                                    Вы не сделали прогноз на этот матч
+                                </div>
+                            <% } %>
+                        <% } else { %>
+                            <!-- Форма прогноза (будет скрыта через JS если матч начался) -->
+                            <form class="prediction-form" data-match-id="<%= match.id %>">
+                                <div class="form-group">
+                                    <label>Счет <%= match.team1_name %></label>
+                                    <input type="number"
+                                           name="team1_score"
+                                           min="0"
+                                           value="<%= match.predicted_team1_score || 0 %>"
+                                           required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Счет <%= match.team2_name %></label>
+                                    <input type="number"
+                                           name="team2_score"
+                                           min="0"
+                                           value="<%= match.predicted_team2_score || 0 %>"
+                                           required>
+                                </div>
+
+                                <div class="checkbox-group">
+                                    <input type="checkbox"
+                                           name="overtime"
+                                           id="overtime_<%= match.id %>"
+                                           <%= match.predicted_overtime ? 'checked' : '' %>>
+                                    <label for="overtime_<%= match.id %>">Будет овертайм</label>
+                                </div>
+
+                                <div class="checkbox-group">
+                                    <input type="checkbox"
+                                           name="shootout"
+                                           id="shootout_<%= match.id %>"
+                                           <%= match.predicted_shootout ? 'checked' : '' %>>
+                                    <label for="shootout_<%= match.id %>">Будут буллиты</label>
+                                </div>
+
+                                <div style="grid-column: 1 / -1;">
+                                    <button type="submit" class="btn">
+                                        <%= match.predicted_team1_score !== null ? 'Обновить прогноз' : 'Сохранить прогноз' %>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <% if (match.predicted_team1_score !== null) { %>
+                                <div class="match-status info">
+                                    ✓ Ваш прогноз сохранен. Вы можете изменить его до начала матча.
+                                </div>
+                            <% } %>
+
+                            <!-- Сообщение "матч начался" (будет показано через JS) -->
+                            <div class="match-status match-started-message" style="display: none;">
+                                ⏱️ Матч уже начался. Прогнозы больше не принимаются.
+                            </div>
+
+                            <% if (match.predicted_team1_score !== null) { %>
+                                <div class="user-prediction-started" style="display: none; margin-top: 10px; text-align: center; color: #666;">
+                                    Ваш прогноз: <%= match.predicted_team1_score %> : <%= match.predicted_team2_score %>
+                                    <% if (match.predicted_overtime) { %> (ОТ)<% } %>
+                                    <% if (match.predicted_shootout) { %> (Б)<% } %>
+                                </div>
+                            <% } else { %>
+                                <div class="no-prediction-started" style="display: none; margin-top: 10px; text-align: center; color: #999;">
+                                    Вы не успели сделать прогноз на этот матч
+                                </div>
+                            <% } %>
+                        <% } %>
+                    </div>
+                <% }); %>
+            <% } %>
+        </main>
+    </div>
+
+    <script>
+        // CSRF токен для защиты от CSRF атак
+        const csrfToken = '<%= csrfToken %>';
+
+        // Функция для показа toast уведомлений
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icon = type === 'success' ? '✅' : '❌';
+
+            toast.innerHTML = `
+                <span class="toast-icon">${icon}</span>
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="closeToast(this)">×</button>
+            `;
+
+            container.appendChild(toast);
+
+            // Автоматически скрыть через 5 секунд
+            setTimeout(() => {
+                closeToast(toast.querySelector('.toast-close'));
+            }, 5000);
+        }
+
+        function closeToast(button) {
+            const toast = button.closest('.toast');
+            toast.classList.add('hiding');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }
+
+        async function savePrediction(event, matchId) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const data = {
+                match_id: matchId,
+                predicted_team1_score: parseInt(formData.get('team1_score')),
+                predicted_team2_score: parseInt(formData.get('team2_score')),
+                predicted_overtime: formData.get('overtime') === 'on',
+                predicted_shootout: formData.get('shootout') === 'on'
+            };
+
+            try {
+                const response = await fetch('/api/predictions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showToast('Прогноз успешно сохранен!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Ошибка при сохранении прогноза', 'error');
+                }
+            } catch (error) {
+                showToast('Ошибка сети. Проверьте подключение к интернету.', 'error');
+            }
+
+            return false; // Предотвращаем отправку формы
+        }
+
+        // Обработка дат на клиенте (используется часовой пояс браузера)
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+
+            // Добавляем обработчики для всех форм прогнозов
+            document.querySelectorAll('.prediction-form').forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const matchId = parseInt(this.dataset.matchId);
+                    savePrediction(event, matchId);
+                });
+            });
+
+            // Обрабатываем все карточки матчей
+            document.querySelectorAll('.match-card').forEach(card => {
+                const matchDateStr = card.dataset.matchDate;
+                const isFinished = card.dataset.isFinished === 'true';
+                const matchDate = new Date(matchDateStr);
+
+                // Отображаем время в локальном часовом поясе
+                const dateElement = card.querySelector('.match-date');
+                if (dateElement) {
+                    dateElement.textContent = matchDate.toLocaleString('ru-RU', {
+                        day: 'numeric',
+                        month: 'long',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+
+                // Проверяем, начался ли матч
+                const isStarted = matchDate <= now;
+
+                if (!isFinished && isStarted) {
+                    // Матч начался - скрываем форму, показываем сообщение
+                    card.classList.add('started');
+                    const form = card.querySelector('.prediction-form');
+                    const statusInfo = card.querySelector('.match-status.info');
+                    const startedMessage = card.querySelector('.match-started-message');
+                    const userPredictionStarted = card.querySelector('.user-prediction-started');
+                    const noPredictionStarted = card.querySelector('.no-prediction-started');
+
+                    if (form) form.style.display = 'none';
+                    if (statusInfo) statusInfo.style.display = 'none';
+                    if (startedMessage) startedMessage.style.display = 'block';
+                    if (userPredictionStarted) userPredictionStarted.style.display = 'block';
+                    if (noPredictionStarted) noPredictionStarted.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
