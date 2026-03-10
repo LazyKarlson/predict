@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Матчи - Прогнозы на Олимпийский хоккей 2026</title>
+    <title>Матчи - Прогнозы на плей-офф Лиги чемпионов</title>
     <style>
         * {
             margin: 0;
@@ -295,7 +295,7 @@
 
     <div class="container">
         <header>
-            <h1>🏒 Прогнозы на Олимпийский хоккей 2026</h1>
+            <h1>⚽ Прогнозы на плей-офф Лиги чемпионов</h1>
             <nav>
                 <a href="/">Матчи</a>
                 <a href="/leaderboard">Таблица лидеров</a>
@@ -333,15 +333,15 @@
                             <div class="result">
                                 <strong>Результат:</strong>
                                 <%= match.team1_score %> : <%= match.team2_score %>
-                                <% if (match.had_overtime) { %> (ОТ)<% } %>
-                                <% if (match.had_shootout) { %> (Б)<% } %>
+                                <% if (match.had_extra_time) { %> (ДВ)<% } %>
+                                <% if (match.had_penalties) { %> (П)<% } %>
                             </div>
 
                             <% if (match.predicted_team1_score !== null) { %>
                                 <div style="margin-top: 10px; text-align: center; color: #666;">
                                     Ваш прогноз: <%= match.predicted_team1_score %> : <%= match.predicted_team2_score %>
-                                    <% if (match.predicted_overtime) { %> (ОТ)<% } %>
-                                    <% if (match.predicted_shootout) { %> (Б)<% } %>
+                                    <% if (match.predicted_extra_time) { %> (ДВ)<% } %>
+                                    <% if (match.predicted_penalties) { %> (П)<% } %>
                                 </div>
                                 <div class="points">
                                     Заработано баллов: <%= match.points_earned %>
@@ -374,18 +374,18 @@
 
                                 <div class="checkbox-group">
                                     <input type="checkbox"
-                                           name="overtime"
-                                           id="overtime_<%= match.id %>"
-                                           <%= match.predicted_overtime ? 'checked' : '' %>>
-                                    <label for="overtime_<%= match.id %>">Будет овертайм</label>
+                                           name="extra_time"
+                                           id="extra_time_<%= match.id %>"
+                                           <%= match.predicted_extra_time ? 'checked' : '' %>>
+                                    <label for="extra_time_<%= match.id %>">Будет доп. время</label>
                                 </div>
 
                                 <div class="checkbox-group">
                                     <input type="checkbox"
-                                           name="shootout"
-                                           id="shootout_<%= match.id %>"
-                                           <%= match.predicted_shootout ? 'checked' : '' %>>
-                                    <label for="shootout_<%= match.id %>">Будут буллиты</label>
+                                           name="penalties"
+                                           id="penalties_<%= match.id %>"
+                                           <%= match.predicted_penalties ? 'checked' : '' %>>
+                                    <label for="penalties_<%= match.id %>">Будут пенальти</label>
                                 </div>
 
                                 <div style="grid-column: 1 / -1;">
@@ -409,8 +409,8 @@
                             <% if (match.predicted_team1_score !== null) { %>
                                 <div class="user-prediction-started" style="display: none; margin-top: 10px; text-align: center; color: #666;">
                                     Ваш прогноз: <%= match.predicted_team1_score %> : <%= match.predicted_team2_score %>
-                                    <% if (match.predicted_overtime) { %> (ОТ)<% } %>
-                                    <% if (match.predicted_shootout) { %> (Б)<% } %>
+                                    <% if (match.predicted_extra_time) { %> (ДВ)<% } %>
+                                    <% if (match.predicted_penalties) { %> (П)<% } %>
                                 </div>
                             <% } else { %>
                                 <div class="no-prediction-started" style="display: none; margin-top: 10px; text-align: center; color: #999;">
@@ -469,8 +469,8 @@
                 match_id: matchId,
                 predicted_team1_score: parseInt(formData.get('team1_score')),
                 predicted_team2_score: parseInt(formData.get('team2_score')),
-                predicted_overtime: formData.get('overtime') === 'on',
-                predicted_shootout: formData.get('shootout') === 'on'
+                predicted_extra_time: formData.get('extra_time') === 'on',
+                predicted_penalties: formData.get('penalties') === 'on'
             };
 
             try {

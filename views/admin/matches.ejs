@@ -221,7 +221,7 @@
                     <div class="form-group">
                         <label>Стадия турнира</label>
                         <select name="stage" required>
-                            <option value="group">Групповой этап</option>
+                            <option value="round_of_16">1/8 финала</option>
                             <option value="quarterfinal">Четвертьфинал</option>
                             <option value="semifinal">Полуфинал</option>
                             <option value="final">Финал</option>
@@ -264,8 +264,8 @@
                                 <div style="background: #fff3cd; padding: 10px; border-radius: 6px; text-align: center;">
                                     <strong>Результат:</strong>
                                     <%= match.team1_score %> : <%= match.team2_score %>
-                                    <% if (match.had_overtime) { %> (ОТ)<% } %>
-                                    <% if (match.had_shootout) { %> (Б)<% } %>
+                                    <% if (match.had_extra_time) { %> (ДВ)<% } %>
+                                    <% if (match.had_penalties) { %> (П)<% } %>
                                 </div>
                             <% } else { %>
                                 <form class="result-form" onsubmit="saveResult(event, <%= match.id %>)">
@@ -280,13 +280,13 @@
                                     </div>
 
                                     <div class="checkbox-group">
-                                        <input type="checkbox" name="overtime" id="overtime_<%= match.id %>">
-                                        <label for="overtime_<%= match.id %>">Был овертайм</label>
+                                        <input type="checkbox" name="extra_time" id="extra_time_<%= match.id %>">
+                                        <label for="extra_time_<%= match.id %>">Было доп. время</label>
                                     </div>
 
                                     <div class="checkbox-group">
-                                        <input type="checkbox" name="shootout" id="shootout_<%= match.id %>">
-                                        <label for="shootout_<%= match.id %>">Были буллиты</label>
+                                        <input type="checkbox" name="penalties" id="penalties_<%= match.id %>">
+                                        <label for="penalties_<%= match.id %>">Были пенальти</label>
                                     </div>
 
                                     <div style="grid-column: 1 / -1;">
@@ -355,8 +355,8 @@
             const data = {
                 team1_score: parseInt(formData.get('team1_score')),
                 team2_score: parseInt(formData.get('team2_score')),
-                had_overtime: formData.get('overtime') === 'on',
-                had_shootout: formData.get('shootout') === 'on'
+                had_extra_time: formData.get('extra_time') === 'on',
+                had_penalties: formData.get('penalties') === 'on'
             };
 
             try {

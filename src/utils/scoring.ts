@@ -6,8 +6,8 @@ import { Match, Prediction } from '../types';
  * Правила:
  * - Угадал победителя: +1 балл
  * - Угадал точный счет: +2 балла (дополнительно)
- * - Угадал овертайм: +0.5 балла
- * - Угадал буллиты: +0.5 балла
+ * - Угадал дополнительное время: +0.5 балла
+ * - Угадал пенальти: +0.5 балла
  */
 export function calculatePoints(match: Match, prediction: Prediction): number {
     if (!match.is_finished) {
@@ -38,13 +38,13 @@ export function calculatePoints(match: Match, prediction: Prediction): number {
         points += 2;
     }
     
-    // Проверка овертайма
-    if (match.had_overtime === prediction.predicted_overtime) {
+    // Проверка дополнительного времени
+    if (match.had_extra_time === prediction.predicted_extra_time) {
         points += 0.5;
     }
-    
-    // Проверка буллитов
-    if (match.had_shootout === prediction.predicted_shootout) {
+
+    // Проверка пенальти
+    if (match.had_penalties === prediction.predicted_penalties) {
         points += 0.5;
     }
     

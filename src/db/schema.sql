@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS matches (
     -- Результаты (заполняются админом после матча)
     team1_score INT,
     team2_score INT,
-    had_overtime BOOLEAN DEFAULT FALSE,
-    had_shootout BOOLEAN DEFAULT FALSE,
+    had_extra_time BOOLEAN DEFAULT FALSE,
+    had_penalties BOOLEAN DEFAULT FALSE,
     is_finished BOOLEAN DEFAULT FALSE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS predictions (
     -- Прогноз пользователя
     predicted_team1_score INT NOT NULL,
     predicted_team2_score INT NOT NULL,
-    predicted_overtime BOOLEAN DEFAULT FALSE,
-    predicted_shootout BOOLEAN DEFAULT FALSE,
+    predicted_extra_time BOOLEAN DEFAULT FALSE,
+    predicted_penalties BOOLEAN DEFAULT FALSE,
 
     -- Начисленные баллы (рассчитываются после завершения матча)
     points_earned DECIMAL(3,1) DEFAULT 0,

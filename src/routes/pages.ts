@@ -13,7 +13,7 @@ router.get('/', requireAuth, async (req, res) => {
                 t1.name as team1_name, t1.flag_emoji as team1_flag,
                 t2.name as team2_name, t2.flag_emoji as team2_flag,
                 p.predicted_team1_score, p.predicted_team2_score,
-                p.predicted_overtime, p.predicted_shootout,
+                p.predicted_extra_time, p.predicted_penalties,
                 p.points_earned
             FROM matches m
             JOIN teams t1 ON m.team1_id = t1.id

@@ -19,11 +19,11 @@ export interface Match {
     team1_id: number;
     team2_id: number;
     match_date: Date;
-    stage: 'group' | 'quarterfinal' | 'semifinal' | 'final';
+    stage: 'round_of_16' | 'quarterfinal' | 'semifinal' | 'final';
     team1_score?: number;
     team2_score?: number;
-    had_overtime: boolean;
-    had_shootout: boolean;
+    had_extra_time: boolean;
+    had_penalties: boolean;
     is_finished: boolean;
     created_at: Date;
 }
@@ -34,8 +34,8 @@ export interface Prediction {
     match_id: number;
     predicted_team1_score: number;
     predicted_team2_score: number;
-    predicted_overtime: boolean;
-    predicted_shootout: boolean;
+    predicted_extra_time: boolean;
+    predicted_penalties: boolean;
     points_earned: number;
     created_at: Date;
     updated_at: Date;

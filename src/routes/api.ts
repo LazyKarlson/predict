@@ -106,15 +106,15 @@ router.post('/matches', requireAdmin, async (req, res) => {
 // Обновить результат матча (только админ)
 router.put('/matches/:id/result', requireAdmin, async (req, res) => {
     const { id } = req.params;
-    const { team1_score, team2_score, had_overtime, had_shootout } = req.body;
-    
+    const { team1_score, team2_score, had_extra_time, had_penalties } = req.body;
+
     try {
         // Обновляем результат матча
         await db.query(
-            `UPDATE matches 
-             SET team1_score = ?, team2_score = ?, had_overtime = ?, had_shootout = ?, is_finished = TRUE 
+            `UPDATE matches
+             SET team1_score = ?, team2_score = ?, had_extra_time = ?, had_penalties = ?, is_finished = TRUE
              WHERE id = ?`,
-            [team1_score, team2_score, had_overtime, had_shootout, id]
+            [team1_score, team2_score, had_extra_time, had_penalties, id]
         );
         
         // Получаем матч
@@ -167,7 +167,7 @@ router.get('/predictions', requireAuth, async (req, res) => {
 
 // Создать или обновить прогноз
 router.post('/predictions', requireAuth, async (req, res) => {
-    const { match_id, predicted_team1_score, predicted_team2_score, predicted_overtime, predicted_shootout } = req.body;
+    const { match_id, predicted_team1_score, predicted_team2_score, predicted_extra_time, predicted_penalties } = req.body;
 
     try {
         // Проверяем, что матч еще не начался
@@ -215,19 +215,19 @@ router.post('/predictions', requireAuth, async (req, res) => {
             await db.query(
                 `UPDATE predictions
                  SET predicted_team1_score = ?, predicted_team2_score = ?,
-                     predicted_overtime = ?, predicted_shootout = ?
+                     predicted_extra_time = ?, predicted_penalties = ?
                  WHERE user_id = ? AND match_id = ?`,
-                [predicted_team1_score, predicted_team2_score, predicted_overtime, predicted_shootout,
+                [predicted_team1_score, predicted_team2_score, predicted_extra_time, predicted_penalties,
                  req.session.userId, match_id]
             );
         } else {
             // Создаем новый прогноз
             await db.query(
                 `INSERT INTO predictions
-                 (user_id, match_id, predicted_team1_score, predicted_team2_score, predicted_overtime, predicted_shootout)
+                 (user_id, match_id, predicted_team1_score, predicted_team2_score, predicted_extra_time, predicted_penalties)
                  VALUES (?, ?, ?, ?, ?, ?)`,
                 [req.session.userId, match_id, predicted_team1_score, predicted_team2_score,
-                 predicted_overtime, predicted_shootout]
+                 predicted_extra_time, predicted_penalties]
             );
         }
 
